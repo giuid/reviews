@@ -1,12 +1,17 @@
-# Appendix E: Additional Results on Qwen2.5-7B-Instruct
+# Additional Results on Qwen2.5-7B-Instruct
 
-As noted during the review process, assessing RAG architectural behaviors across multiple divergent model families reinforces the generalized validity of the findings. Along with Llama and Gemma, we extensively integrated **Qwen2.5-7B-Instruct** into the RAG-E diagnostic pipeline.
+During the rebuttal phase, to ensure that the findings regarding **Wasted Retrieval** and **Noise Distraction** are not isolated to older or specific model families, we integrated the state-of-the-art **Qwen2.5-7B-Instruct** into our RAG-E diagnostic pipeline.
 
-## General Diagnostics
+## 1. Wasted Retrieval and Noise Distraction
+The fundamental failure modes persist structurally within Qwen. The model exhibits a strong primacy bias, consistently prioritizing documents placed at the very top of the context window, regardless of the relative relevance scores originally assigned by the Retriever.
 
-The results for Qwen follow a remarkably similar trajectory to Gemma and Llama. Qwen exhibits measurable vulnerability to **Wasted Retrieval** and **Noise Distraction** when interfaced natively with DRAGON and Arctic Embed models. 
+### TREC CAsT Dataset (Subset)
+| Retriever | Wasted Retrieval (%) | Noise Distraction (%) |
+|:---:|:---:|:---:|
+| **Dragon** | ~39.9% | ~28.9% |
+| **Snowflake** | ~42.2% | ~27.2% |
 
-### Selected Highlights
-While specific failure percentages fluctuate depending on exact prompt construction, the **primacy bias** strictly mimics behaviors identified in other leading open weights. Evaluating Qwen solidifies the conclusion that failure mappings uncovered via `WARG` and the `pmcSHAP` attributions are structural issues of modern decoder-only architectures applied naively to dense retrieval context windows, and are not tied to an isolated model paradigm.
+### 2. Retriever-Generator Alignment (Attribution vs Rank)
+When visualizing the `pmcSHAP` generation attributions across the retrieved ranks, Qwen closely mirrors the distribution seen in Llama and Gemma. The generator overwhelmingly attributes answer generation to Rank 1 and 2, but frequently falls back on local LLM parametric knowledge or irrelevant context when the alignment with the retriever is low.
 
-*(Complete logs, CSV arrays, and attribution plots concerning Qwen outputs reside natively in the `/analysis_data/` directory of this repository).*
+*(Raw output logs and visual PDF distributions for Qwen are stored directly inside the `data/` folder of this repository).*
